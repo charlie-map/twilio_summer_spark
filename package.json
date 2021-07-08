@@ -1,0 +1,16 @@
+{
+  "name": "twilio_summer_spark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "twilio_test_send.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "libphonenumber-js": "^1.9.21",
+    "twilio": "^3.65.0"
+  }
+}
