@@ -48,10 +48,10 @@ function send_call(all_callers) {
 						from: process.env.TWILIO_PHONE_NUMBER
 					})
 					.then(cb_message => {
-						resolve("Accepted: " + message[0] + " " + cb_message.sid);
+						resolve("Accepted: " + call[0] + " " + cb_message.sid);
 					})
 					.catch(err => {
-						reject("Number " + message[0] + " rejected: " + err.message);
+						reject("Number " + call[0] + " rejected: " + err.message);
 					});
 			});
 		});
@@ -128,6 +128,7 @@ async function run_process(number, flag, template) {
 
 	console.log("\n");
 	data.forEach((item, index) => {
+		console.log(item);
 		let message_data = [item.number, template];
 
 		// run through each word and examine
@@ -135,7 +136,7 @@ async function run_process(number, flag, template) {
 			let low_check_var = check_var.toLowerCase();
 			error = error != -1 ? item[low_check_var] ? (item[low_check_var] == "NULL" || item[low_check_var] == "null") ? -1 : 1 : -1 : error;
 
-			if (error == -1) throw "Unused variable in template on value: {{" + check_var + "}}";
+			if (error == -1) throw "Unused variable in template on value: " + item.first_name + " {{" + check_var + "}} " + item[low_check_var];
 			message_data[1] = message_data[1].replace(new RegExp("{{" + check_var + "}}", 'g'), item[low_check_var]);
 		});
 
@@ -183,6 +184,7 @@ async function run_process(number, flag, template) {
 
 run_process(process.argv[2], process.argv[3], process.argv[4]).then(() => {
 	console.log("\ndone");
+	process.exit();
 }).catch((error) => {
 	console.log("\nSomething went wrong...", error);
 	quest.close();
