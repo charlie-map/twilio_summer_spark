@@ -137,7 +137,7 @@ async function run_process(number, flag, template, force) {
 			let low_check_var = check_var.toLowerCase();
 			error = error != -1 ? item[low_check_var] ? (item[low_check_var] == "NULL" || item[low_check_var] == "null") ? -1 : 1 : -1 : error;
 
-			if (error == -1) throw "Unused variable in template on value: " + item.first_name + " {{" + check_var + "}} " + item[low_check_var];
+			if (error == -1) throw "Unused variable in template on value: " + item + " {{" + check_var + "}} " + item[low_check_var];
 			message_data[1] = message_data[1].replace(new RegExp("{{" + check_var + "}}", 'g'), item[low_check_var]);
 		});
 
@@ -214,13 +214,15 @@ function csvJSON(csv) {
 	// jsfiddle showing the issue https://jsfiddle.net/
 	var headers = lines[0].split(",");
 
+	headers = headers.map(item => item.trim());
+
 	for (var i = 1; i < lines.length; i++) {
 
 		var obj = {};
 		var currentline = lines[i].split(",");
 
 		for (var j = 0; j < headers.length; j++) {
-			obj[headers[j]] = currentline[j];
+			obj[headers[j]] = currentline[j].trim();
 		}
 
 		result.push(obj);
