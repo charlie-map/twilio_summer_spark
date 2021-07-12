@@ -221,7 +221,9 @@ function csvJSON(csv) {
 		var obj = {};
 		var currentline = lines[i].split(",");
 
+		if (currentline.length != headers.length) continue;
 		for (var j = 0; j < headers.length; j++) {
+
 			obj[headers[j]] = currentline[j].trim();
 		}
 
