@@ -34,6 +34,8 @@ const parsePhoneNumber = require('libphonenumber-js');
 		( values that should be entered into the template should be display as follows: 
 			ex. "Hi there! We hope you, {{NAME}}, are doing well!"
 			ensure these columns match the csv -- named: "template" )
+
+	3: a force flag for allowing a cron to hard send without checking
 */
 
 function send_call(all_callers) {
@@ -94,7 +96,7 @@ function retrieve_data(question) {
 	});
 }
 
-async function run_process(number, flag, template) {
+async function run_process(number, flag, template, force) {
 
 	if (!number) {
 		console.log("\nYou're missing the csv file argument");
@@ -128,7 +130,6 @@ async function run_process(number, flag, template) {
 
 	console.log("\n");
 	data.forEach((item, index) => {
-		console.log(item);
 		let message_data = [item.number, template];
 
 		// run through each word and examine
@@ -143,7 +144,8 @@ async function run_process(number, flag, template) {
 
 		// phone number checking
 		if (!item.number || item.number.toLowerCase() == "null") {
-			console.log("\nAn error occured for the cell phone on user", item);
+			if (!item.number) console.log("\nPlease ensure the phone number field is labeled 'number' for users", item);
+			else console.log("\nAn error occured for the cell phone on user", item);
 			return;
 		}
 
@@ -163,26 +165,34 @@ async function run_process(number, flag, template) {
 		console.log("\n", template_display[0], template_display[1]);
 	});
 
-	await new Promise((resolve, reject) => {
-		quest.question("\n\nHi there - How does this look? y (Looks good!), n (Cancel!) ", async function(value) {
-			if (value != "y")
-				return reject("User denied the offered messages");
+	await new Promise(async (resolve, reject) => {
+		if (!force) {
+			quest.question("\n\nHi there - How does this look? y (Looks good!), n (Cancel!) ", async function(value) {
+				if (value != "y")
+					return reject("User denied the offered messages");
 
-			console.log("\nSending message!");
+				console.log("\nSending message!");
 
+				if (flag == "sms")
+					await send_sms(building_templates);
+				else if (flag == "call")
+					await send_call(building_templates);
+
+				quest.close();
+				resolve();
+			});
+		} else {
 			if (flag == "sms")
 				await send_sms(building_templates);
 			else if (flag == "call")
 				await send_call(building_templates);
-
-			quest.close();
 			resolve();
-		});
+		}
 	});
 	return;
 }
 
-run_process(process.argv[2], process.argv[3], process.argv[4]).then(() => {
+run_process(process.argv[2], process.argv[3], process.argv[4], process.argv[5]).then(() => {
 	console.log("\ndone");
 	process.exit();
 }).catch((error) => {
